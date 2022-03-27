@@ -3,7 +3,12 @@
 #include<time.h>
 #include <math.h>
 #include <pthread.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "mm.h"
+
+#define MAXBUF 1000
+int length;
 
 
 // Task 1: Flush the cache so that we can do our measurement :)
@@ -12,9 +17,25 @@ void flush_all_caches()
     // Your code goes here
 }
 
-void *load_matrix_A()
+void *load_matrix_A(void *value)
 {
     long i;
+    int *num = (int *) value;
+    int fd= open("./input1.in", O_RDONLY);
+    char buf[MAXBUF];
+    ssize_t numRead;
+
+    //count number of lines to get row and column dimension of matrix
+    //since it is a square matrix, we only need number of lines
+    while ((numRead = read(fd, buf, MAXBUF)) > 0) {
+        for (int i = 0; i < numRead; i++) {
+            if (buf[i] == '\n') {
+                *num+=1;
+            }
+        }
+    }
+    printf("DEBUG: Number of lines %d\n", *num);
+
     huge_matrixA = malloc(sizeof(long)*(long)SIZEX*(long)SIZEY);
     // Load the input
     // Note: This is suboptimal because each of these loads can be done in parallel.
@@ -26,9 +47,10 @@ void *load_matrix_A()
     return NULL;
 }
 
-void *load_matrix_B()
+void *load_matrix_B(void *value)
 {
     long i;
+    int *num = (int *) value;
     huge_matrixB = malloc(sizeof(long)*(long)SIZEX*(long)SIZEY);
     // Load the input
     // Note: This is suboptimal because each of these loads can be done in parallel.
@@ -36,17 +58,20 @@ void *load_matrix_B()
     for(i=0;i<((long)SIZEX*(long)SIZEY);i++)
     {
         fscanf(fin2,"%ld", (huge_matrixB+i));
+        num++;
     }
     return NULL;
 }
 
-void *set_matrix_C()
+void *set_matrix_C(void *value)
 {
     huge_matrixC = malloc(sizeof(long)*(long)SIZEX*(long)SIZEY);
+    int *num = (int *) value;
     long i;
     for(i=0;i<((long)SIZEX*(long)SIZEY);i++)
     {
         huge_matrixC[i] = 0;
+        num++;
     }
     return NULL;
 }
@@ -54,10 +79,18 @@ void *set_matrix_C()
 void load_matrix_base()
 {
     pthread_t thread;
-    pthread_create(&thread, NULL, load_matrix_A, NULL);
-    pthread_create(&thread, NULL, load_matrix_B, NULL);
-    pthread_create(&thread, NULL, set_matrix_C, NULL);
+    int lengthA = 0;
+    int lengthB = 0;
+    int lengthC = 0;
+    pthread_create(&thread, NULL, load_matrix_A, &lengthA);
+    pthread_create(&thread, NULL, load_matrix_B, &lengthB);
+    pthread_create(&thread, NULL, set_matrix_C, &lengthC);
     pthread_join(thread, NULL);
+    //Number of lines squared will give us length of matrix
+    //Only required for one matrix as all matrix has the same dimensions
+    lengthA *= lengthA;
+    length = lengthA;
+    printf("Length of each matrix = %d\n", length);
 
 //    load_matrix_A();
 //    load_matrix_B();
@@ -76,18 +109,10 @@ void free_all()
 
 void multiply_base()
 {
-    long length  = sizeof(huge_matrixA)/2;
+    size_t n = sizeof(*huge_matrixA)/sizeof(huge_matrixA[0]);
     printf("Test print\n");
-    printf("Length of huge_matrixA is %ld\n", length);
+    printf("Length of huge_matrixA is %ld\n", n);
 
-    printf("%ld\n",huge_matrixA[0]);
-    printf("%ld\n",huge_matrixA[1]);
-    printf("%ld\n",huge_matrixA[2]);
-    printf("%ld\n",huge_matrixA[3]);
-    printf("%ld\n",huge_matrixB[0]);
-    printf("%ld\n",huge_matrixB[1]);
-    printf("%ld\n",huge_matrixB[2]);
-    printf("%ld\n",huge_matrixB[3]);
 
     // Your code here
     //
