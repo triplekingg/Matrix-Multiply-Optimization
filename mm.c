@@ -9,6 +9,7 @@
 
 #define MAXBUF 1000
 int length;
+int dimensions;
 
 
 // Task 1: Flush the cache so that we can do our measurement :)
@@ -17,8 +18,18 @@ void flush_all_caches()
     // Your code goes here
 }
 
-void *getDimensions(void *len){
-    int *num = (int *) len;
+void printMatrix(long *matrix){
+    int i = 0;
+    for(int j = 0; j<dimensions; j++){
+        for(int k = 0; k<dimensions; k++){
+            printf("%ld ", matrix[i]);
+            i++;
+        }
+        printf("\n");
+    }
+}
+void getDimensions(){
+    int num = 0;
     int fd= open("./input1.in", O_RDONLY);
     char buf[MAXBUF];
     ssize_t numRead;
@@ -28,13 +39,14 @@ void *getDimensions(void *len){
     while ((numRead = read(fd, buf, MAXBUF)) > 0) {
         for (int i = 0; i < numRead; i++) {
             if (buf[i] == '\n') {
-                *num+=1;
+                num+=1;
             }
         }
     }
-    printf("DEBUG: Number of lines %d\n", *num);
-    length = *num * *num;
-    return NULL;
+    printf("DEBUG: Number of lines %d\n", num);
+    length = num * num;
+    dimensions = num;
+
 }
 
 void *load_matrix_A()
@@ -79,12 +91,12 @@ void *set_matrix_C()
 void load_matrix_base()
 {
     pthread_t thread;
-    int dimensions = 0;
     pthread_create(&thread, NULL, load_matrix_A, NULL);
     pthread_create(&thread, NULL, load_matrix_B, NULL);
     pthread_create(&thread, NULL, set_matrix_C, NULL);
-    pthread_create(&thread, NULL, getDimensions, &dimensions);
+//    pthread_create(&thread, NULL, getDimensions, &dimensions);
     pthread_join(thread, NULL);
+    getDimensions();
     //Number of lines squared will give us length of matrix
     //Only required for one matrix as all matrix has the same dimensions
 
@@ -105,6 +117,7 @@ void free_all()
 
 void multiply_base()
 {
+    printMatrix(huge_matrixB);
 
     // Your code here
     //
