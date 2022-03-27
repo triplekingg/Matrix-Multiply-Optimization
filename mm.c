@@ -33,6 +33,7 @@ void *getDimensions(void *len){
         }
     }
     printf("DEBUG: Number of lines %d\n", *num);
+    length = *num * *num;
     return NULL;
 }
 
@@ -87,15 +88,11 @@ void load_matrix_base()
     //Number of lines squared will give us length of matrix
     //Only required for one matrix as all matrix has the same dimensions
 
-    length = dimensions*dimensions;
+
     printf("DEBUG: Length of each matrix = %d\n", length);
     printf("DEBUG: Matrix Dimensions: %d x %d\n", dimensions, dimensions);
 
-//    load_matrix_A();
-//    load_matrix_B();
-//    set_matrix_C();
-    // Load the input
-    // Note: This is suboptimal because each of these loads can be done in parallel.
+
 
 }
 
