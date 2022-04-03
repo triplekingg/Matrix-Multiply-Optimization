@@ -138,7 +138,14 @@ void free_all()
 
 void multiply_base()
 {
-    printMatrix(huge_matrixB);
+    for (int i = 0; i < dimensions; i++) {
+        for (int j = 0; j < dimensions; j++) {
+            long sum = 0.0;
+            for (int k = 0; k < dimensions; k++)
+                sum = sum + huge_matrixA[i * dimensions + k] * huge_matrixB[k * dimensions + j];
+            huge_matrixC[i * dimensions + j] = sum;
+        }
+    }
 
     // Your code here
     //
@@ -210,6 +217,7 @@ int main()
 
     s = clock();
     multiply_base();
+    printMatrix(huge_matrixC);
     t = clock();
     total_mul_base += ((double)t-(double)s) / CLOCKS_PER_SEC;
     printf("[Baseline] Total time taken during the multiply = %f seconds\n", total_mul_base);
