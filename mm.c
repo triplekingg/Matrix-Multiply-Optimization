@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <fcntl.h>
 #include <unistd.h>
+//#include <asm/cachectl.h>
 #include "mm.h"
 
 #define MAXBUF 1000
@@ -16,6 +17,25 @@ int dimensions;
 void flush_all_caches()
 {
     // Your code goes here
+
+    //ref: https://stackoverflow.com/questions/11277984/how-to-flush-the-cpu-cache-in-linux-from-a-c-program
+    for (long i = 0; i < (length); i++){
+        asm volatile("clflush (%0)\n\t"
+        :
+        : "r"(huge_matrixA + i)
+        : "memory");
+        asm volatile("clflush (%0)\n\t"
+        :
+        : "r"(huge_matrixB + i)
+        : "memory");
+        asm volatile("clflush (%0)\n\t"
+        :
+        : "r"(huge_matrixC + i)
+        : "memory");
+
+    }
+
+    asm volatile("sfence\n\t" ::: "memory");
 }
 
 void printMatrix(long *matrix){
@@ -28,6 +48,7 @@ void printMatrix(long *matrix){
         printf("\n");
     }
 }
+
 void getDimensions(){
     int num = 0;
     int fd= open("./input1.in", O_RDONLY);
