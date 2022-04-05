@@ -191,6 +191,20 @@ void load_matrix()
 void multiply()
 {
     // Your code here
+    int i,j,k;
+    for(i = 0; i < dimensions; i+= 2){
+        for(j = 0; j < dimensions; j += 2){
+            for(k = 0; k < dimensions; k += 2){
+                for(int i1 = i; i1 < i+2;i1++){
+                    for(int j1 = j; j1 < j+2;j1++){
+                        for(int k1 = k; k1 < k+2;k1++){
+                            huge_matrixC[i1*dimensions + j1] += huge_matrixA[i1*dimensions + k1]*huge_matrixB[k1*dimensions + j1];
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 int main()
@@ -217,14 +231,14 @@ int main()
 
     s = clock();
     multiply_base();
-    printMatrix(huge_matrixC);
     t = clock();
     total_mul_base += ((double)t-(double)s) / CLOCKS_PER_SEC;
     printf("[Baseline] Total time taken during the multiply = %f seconds\n", total_mul_base);
+//    printMatrix(huge_matrixC);
     fclose(fin1);
     fclose(fin2);
     fclose(fout);
-    free_all();
+//    free_all();
 
     flush_all_caches();
 
