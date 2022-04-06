@@ -5,7 +5,7 @@
 #include <pthread.h>
 #include <fcntl.h>
 #include <unistd.h>
-//#include <asm/cachectl.h>
+#include <string.h>
 #include "mm.h"
 
 #define MAXBUF 1000
@@ -159,10 +159,10 @@ void compare_results()
     {
         fscanf(fout, "%ld", &temp1);
         fscanf(ftest, "%ld", &temp2);
-//        printf("DEBUG: %ld = %ld \n", temp1, temp2);
+        printf("DEBUG: %ld = %ld \n", temp1, temp2);
         if(temp1!=temp2)
         {
-            printf("Wrong solution!");
+            printf("Wrong solution!\n");
             exit(1);
         }
     }
@@ -174,9 +174,18 @@ void compare_results()
 void write_results()
 {
     // Your code here
-    //
     // Basically, make sure the result is written on fout
     // Each line represent value in the X-dimension of your matrix
+    fout = fopen("./out.in","w");
+    for (int i = 0; i < dimensions; i++){
+        for (int j = 0; j < dimensions; j++){
+            char buff[MAXBUF];
+            sprintf(buff, "%ld ", huge_matrixC[i * dimensions + j]);
+            fwrite(buff, 1, strlen(buff), fout);
+        }
+        fwrite("\n", 1, strlen("\n"), fout);
+    }
+    fclose(fout);
 }
 
 void load_matrix()
