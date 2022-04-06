@@ -132,18 +132,24 @@ void free_all()
 
 void multiply_base()
 {
-    for (int i = 0; i < dimensions; i++) {
-        for (int j = 0; j < dimensions; j++) {
-            long sum = 0.0;
-            for (int k = 0; k < dimensions; k++)
-                sum = sum + huge_matrixA[i * dimensions + k] * huge_matrixB[k * dimensions + j];
-            huge_matrixC[i * dimensions + j] = sum;
-        }
-    }
-
     // Your code here
     //
     // Implement your baseline matrix multiply here.
+    // Your code here
+    int i,j,k;
+    for(i = 0; i < dimensions; i+= BLOCKSIZE){
+        for(j = 0; j < dimensions; j += BLOCKSIZE){
+            for(k = 0; k < dimensions; k += BLOCKSIZE){
+                for(int i1 = i; i1 < i+BLOCKSIZE;i1++){
+                    for(int j1 = j; j1 < j+BLOCKSIZE;j1++){
+                        for(int k1 = k; k1 < k+BLOCKSIZE;k1++){
+                            huge_matrixC[i1*dimensions + j1] += huge_matrixA[i1*dimensions + k1]*huge_matrixB[k1*dimensions + j1];
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 }
 
@@ -205,22 +211,32 @@ void load_matrix()
     // Your code here
 }
 
+void *helper(void* a, void* b, void* c){
+    int *i = (int *)a;
+    int *j = (int *)b;
+    int *k = (int *)c;
+    for(int i1 = *i; i1 < **i+BLOCKSIZE;i1++){
+        for(int j1 = *j; j1 < *j+BLOCKSIZE;j1++){
+            for(int k1 = *k; k1 < *k+BLOCKSIZE;k1++){
+                huge_matrixC[i1*dimensions + j1] += huge_matrixA[i1*dimensions + k1]*huge_matrixB[k1*dimensions + j1];
+            }
+        }
+    }
+    return NULL;
+}
 
 
 void multiply()
 {
+    pthread_t thread;
+
     // Your code here
     int i,j,k;
     for(i = 0; i < dimensions; i+= BLOCKSIZE){
         for(j = 0; j < dimensions; j += BLOCKSIZE){
             for(k = 0; k < dimensions; k += BLOCKSIZE){
-                for(int i1 = i; i1 < i+BLOCKSIZE;i1++){
-                    for(int j1 = j; j1 < j+BLOCKSIZE;j1++){
-                        for(int k1 = k; k1 < k+BLOCKSIZE;k1++){
-                            huge_matrixC[i1*dimensions + j1] += huge_matrixA[i1*dimensions + k1]*huge_matrixB[k1*dimensions + j1];
-                        }
-                    }
-                }
+                pthread_create(&thread, NULL, helper, &i,&j,&k);
+                pthread_join(&thread,NULL);
             }
         }
     }
