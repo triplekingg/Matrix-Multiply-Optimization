@@ -1,17 +1,11 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
-#include <math.h>
-#include <pthread.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
 #include "mm.h"
 
-#define MAXBUF 1000
-#define BLOCKSIZE 100
-int length;
-int dimensions;
 
 
 // Task 1: Flush the cache so that we can do our measurement :)
@@ -65,50 +59,11 @@ void getDimensions(){
             }
         }
     }
-    printf("DEBUG: Number of lines %d\n", num);
+//    printf("DEBUG: Number of lines %d\n", num);
     length = num * num;
     dimensions = num;
     close(fd);
 
-}
-
-void *load_matrix_A()
-{
-    long i;
-    huge_matrixA = malloc(sizeof(long)*(long)SIZEX*(long)SIZEY);
-    // Load the input
-    // Note: This is suboptimal because each of these loads can be done in parallel.
-
-    for(i=0;i<((long)SIZEX*(long)SIZEY);i++)
-    {
-        fscanf(fin1,"%ld", (huge_matrixA+i));
-    }
-    return NULL;
-}
-
-void *load_matrix_B()
-{
-    long i;
-    huge_matrixB = malloc(sizeof(long)*(long)SIZEX*(long)SIZEY);
-    // Load the input
-    // Note: This is suboptimal because each of these loads can be done in parallel.
-
-    for(i=0;i<((long)SIZEX*(long)SIZEY);i++)
-    {
-        fscanf(fin2,"%ld", (huge_matrixB+i));
-    }
-    return NULL;
-}
-
-void *set_matrix_C()
-{
-    huge_matrixC = malloc(sizeof(long)*(long)SIZEX*(long)SIZEY);
-    long i;
-    for(i=0;i<((long)SIZEX*(long)SIZEY);i++)
-    {
-        huge_matrixC[i] = 0;
-    }
-    return NULL;
 }
 
 void load_matrix_base()
