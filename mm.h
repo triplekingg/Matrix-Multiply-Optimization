@@ -19,6 +19,11 @@ void load_matrix();
 void multiply();
 
 // Any additional variables needed go here
+void printMatrix(long *matrix);
+void getDimensions();
+void *load_matrix_A();
+void *load_matrix_B();
+void *set_matrix_C();
 
 // Any helper functions go here
 

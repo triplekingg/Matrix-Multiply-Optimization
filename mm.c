@@ -9,6 +9,7 @@
 #include "mm.h"
 
 #define MAXBUF 1000
+#define BLOCKSIZE 100
 int length;
 int dimensions;
 
@@ -159,7 +160,7 @@ void compare_results()
     {
         fscanf(fout, "%ld", &temp1);
         fscanf(ftest, "%ld", &temp2);
-        printf("DEBUG: %ld = %ld \n", temp1, temp2);
+//        printf("DEBUG: %ld = %ld \n", temp1, temp2);
         if(temp1!=temp2)
         {
             printf("Wrong solution!\n");
@@ -215,12 +216,12 @@ void multiply()
 {
     // Your code here
     int i,j,k;
-    for(i = 0; i < dimensions; i+= 2){
-        for(j = 0; j < dimensions; j += 2){
-            for(k = 0; k < dimensions; k += 2){
-                for(int i1 = i; i1 < i+2;i1++){
-                    for(int j1 = j; j1 < j+2;j1++){
-                        for(int k1 = k; k1 < k+2;k1++){
+    for(i = 0; i < dimensions; i+= BLOCKSIZE){
+        for(j = 0; j < dimensions; j += BLOCKSIZE){
+            for(k = 0; k < dimensions; k += BLOCKSIZE){
+                for(int i1 = i; i1 < i+BLOCKSIZE;i1++){
+                    for(int j1 = j; j1 < j+BLOCKSIZE;j1++){
+                        for(int k1 = k; k1 < k+BLOCKSIZE;k1++){
                             huge_matrixC[i1*dimensions + j1] += huge_matrixA[i1*dimensions + k1]*huge_matrixB[k1*dimensions + j1];
                         }
                     }
@@ -233,7 +234,7 @@ void multiply()
 int main()
 {
 
-
+    free_all();
     clock_t s,t;
     double total_in_base = 0.0;
     double total_in_your = 0.0;
@@ -252,14 +253,14 @@ int main()
     t = clock();
     total_in_base += ((double)t-(double)s) / CLOCKS_PER_SEC;
     printf("[Baseline] Total time taken during the load = %f seconds\n", total_in_base);
-    printMatrix(huge_matrixA);
+//    printMatrix(huge_matrixA);
 
     s = clock();
     multiply_base();
     t = clock();
     total_mul_base += ((double)t-(double)s) / CLOCKS_PER_SEC;
     printf("[Baseline] Total time taken during the multiply = %f seconds\n", total_mul_base);
-    printMatrix(huge_matrixC);
+//    printMatrix(huge_matrixC);
     fclose(fin1);
     fclose(fin2);
     fclose(fout);
@@ -279,7 +280,7 @@ int main()
     t = clock();
     total_mul_your += ((double)t-(double)s) / CLOCKS_PER_SEC;
     printf("Total time taken during the multiply = %f seconds\n", total_mul_your);
-    printMatrix(huge_matrixC);
+//    printMatrix(huge_matrixC);
     write_results();
     fclose(fin1);
     fclose(fin2);
