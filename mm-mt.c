@@ -210,16 +210,25 @@ void load_matrix()
 
     // Your code here
 }
-
+void *helper1(void* b, void* c, void* d){
+    int k1;
+    int k = *(int *)b;
+    int i1 = *(int *)c;
+    int j1 = *(int *)d;
+    for(k1 = *k; k1 < *k+BLOCKSIZE;k1++){
+        huge_matrixC[i1*dimensions + j1] += huge_matrixA[i1*dimensions + k1]*huge_matrixB[k1*dimensions + j1];
+    }
+    return NULL;
+}
 void *helper(void* a, void* b, void* c){
+    pthread_t pthread;
     int *i = (int *)a;
     int *j = (int *)b;
     int *k = (int *)c;
     for(int i1 = *i; i1 < **i+BLOCKSIZE;i1++){
         for(int j1 = *j; j1 < *j+BLOCKSIZE;j1++){
-            for(int k1 = *k; k1 < *k+BLOCKSIZE;k1++){
-                huge_matrixC[i1*dimensions + j1] += huge_matrixA[i1*dimensions + k1]*huge_matrixB[k1*dimensions + j1];
-            }
+            pthread_create(&pthread,NULL, helper1,&k,&i1,&j1);
+            pthread_join(&pthread,NULL);
         }
     }
     return NULL;
