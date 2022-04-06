@@ -67,6 +67,7 @@ void getDimensions(){
     printf("DEBUG: Number of lines %d\n", num);
     length = num * num;
     dimensions = num;
+    close(fd);
 
 }
 
@@ -111,22 +112,19 @@ void *set_matrix_C()
 
 void load_matrix_base()
 {
-    pthread_t thread;
-    pthread_create(&thread, NULL, load_matrix_A, NULL);
-    pthread_create(&thread, NULL, load_matrix_B, NULL);
-    pthread_create(&thread, NULL, set_matrix_C, NULL);
-//    pthread_create(&thread, NULL, getDimensions, &dimensions);
-    pthread_join(thread, NULL);
     getDimensions();
-    //Number of lines squared will give us length of matrix
-    //Only required for one matrix as all matrix has the same dimensions
-
-
-    printf("DEBUG: Length of each matrix = %d\n", length);
-    printf("DEBUG: Matrix Dimensions: %d x %d\n", dimensions, dimensions);
-
-
-
+    long i;
+    huge_matrixA = malloc(sizeof(long)*(long)dimensions*(long)dimensions);
+    huge_matrixB = malloc(sizeof(long)*(long)dimensions*(long)dimensions);
+    huge_matrixC = malloc(sizeof(long)*(long)dimensions*(long)dimensions);
+    // Load the input
+    // Note: This is suboptimal because each of these loads can be done in parallel.
+    for(i=0;i<((long)dimensions*(long)dimensions);i++)
+    {
+        fscanf(fin1,"%ld", (huge_matrixA+i));
+        fscanf(fin2,"%ld", (huge_matrixB+i));
+        huge_matrixC[i] = 0;
+    }
 }
 
 void free_all()
@@ -182,6 +180,9 @@ void write_results()
 
 void load_matrix()
 {
+    fin1 = fopen("./input1.in","r");
+    fin2 = fopen("./input2.in","r");
+    load_matrix_base();
 
     // Your code here
 }
@@ -209,7 +210,8 @@ void multiply()
 
 int main()
 {
-    free_all();
+
+
     clock_t s,t;
     double total_in_base = 0.0;
     double total_in_your = 0.0;
@@ -228,17 +230,17 @@ int main()
     t = clock();
     total_in_base += ((double)t-(double)s) / CLOCKS_PER_SEC;
     printf("[Baseline] Total time taken during the load = %f seconds\n", total_in_base);
+    printMatrix(huge_matrixA);
 
     s = clock();
     multiply_base();
     t = clock();
     total_mul_base += ((double)t-(double)s) / CLOCKS_PER_SEC;
     printf("[Baseline] Total time taken during the multiply = %f seconds\n", total_mul_base);
-//    printMatrix(huge_matrixC);
     fclose(fin1);
     fclose(fin2);
     fclose(fout);
-//    free_all();
+    free_all();
 
     flush_all_caches();
 
@@ -247,6 +249,7 @@ int main()
     t = clock();
     total_in_your += ((double)t-(double)s) / CLOCKS_PER_SEC;
     printf("Total time taken during the load = %f seconds\n", total_in_your);
+    printMatrix(huge_matrixA);
 
     s = clock();
     multiply();
@@ -258,7 +261,7 @@ int main()
     fclose(fin2);
     fclose(fout);
     free_all();
-//	compare_results();
+    compare_results();
 
     return 0;
 }
