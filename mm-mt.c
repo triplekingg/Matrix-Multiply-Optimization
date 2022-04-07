@@ -8,26 +8,45 @@
 #include "mm.h"
 
 
-// Task 1: Flush the cache so that we can do our measurement :)
-void flush_all_caches() {
-    // Your code goes here
-
-    //ref: https://stackoverflow.com/questions/11277984/how-to-flush-the-cpu-cache-in-linux-from-a-c-program
+void* flushA(){
     for (long i = 0; i < (length); i++) {
         asm volatile("clflush (%0)\n\t"
         :
         : "r"(huge_matrixA + i)
         : "memory");
+    }
+    return NULL;
+}
+
+void* flushB(){
+    for (long i = 0; i < (length); i++) {
         asm volatile("clflush (%0)\n\t"
         :
         : "r"(huge_matrixB + i)
         : "memory");
+    }
+    return NULL;
+}
+
+void* flushC(){
+    for (long i = 0; i < (length); i++) {
         asm volatile("clflush (%0)\n\t"
         :
         : "r"(huge_matrixC + i)
         : "memory");
-
     }
+    return NULL;
+}
+
+// Task 1: Flush the cache so that we can do our measurement :)
+void flush_all_caches() {
+    // Your code goes here
+    //ref: https://stackoverflow.com/questions/11277984/how-to-flush-the-cpu-cache-in-linux-from-a-c-program
+    pthread_t thread;
+    pthread_create(&thread, NULL, flushA, NULL);
+    pthread_create(&thread, NULL, flushB, NULL);
+    pthread_create(&thread, NULL, flushC, NULL);
+    pthread_join(&thread,NULL);
 
     asm volatile("sfence\n\t":: : "memory");
 }

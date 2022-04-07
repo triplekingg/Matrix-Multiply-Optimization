@@ -33,3 +33,6 @@ void *load_matrix_A();
 void *load_matrix_B();
 void *set_matrix_C();
 void *multiplyHelper(void* a, void* b, void* c);
+void* flushA();
+void* flushB();
+void* flushC();
